@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  HOW TO USE THIS TEMPLATE
+  1. Copy this file and rename it (lowercase-with-dashes.html).
+  2. Change the <title>, the <h1> and the content.
+  3. On <body>, set:
+       data-era   = terminal | web90 | portal | modern   (which system the page looks like)
+       data-class = U | CUI | C | S | TS | SCI           (classification banner)
+       data-marking (optional) = full banner text, e.g. "SECRET//NOFORN"
+  4. Add a line for the page in assets/pages.js.
+
+  Handy extras:
+    <p data-pm="S">…</p>                 paragraph marking, shows "(S)"
+    <span class="redact">words</span>     blacked-out text
+    <div class="notice">…</div>           warning box
+  Delete the infobox if you don't need one.
+-->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Template: Current System · AEROCOM Records Archive</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-root="../" data-era="modern" data-class="U">
+  <main>
+    <div class="breadcrumb"><a href="../index.html">Directory</a> › Templates</div>
+    <h1>Template: Current System</h1>
+
+    <aside class="infobox">
+      <div class="infobox-title">Template: Current System</div>
+      <div class="infobox-image">
+        <!-- <img src="../images/your-image.png" alt=""> -->
+        Image pending
+      </div>
+      <table>
+        <tr><th>Designation</th><td>XX-00</td></tr>
+        <tr><th>Status</th><td>Active</td></tr>
+        <tr><th>Last updated</th><td>2026-11-10</td></tr>
+      </table>
+    </aside>
+
+    <p class="lead"><strong>Template: Current System</strong>. Use for records on the current system. Clean, modern, readable.</p>
+
+    <div class="notice">Example notice box.</div>
+
+    <h2>Overview</h2>
+    <p data-pm="U">An unclassified paragraph. Link to other records like this:
+      <a href="about.html">About This Archive</a>.</p>
+    <p data-pm="U">A paragraph at the page's level, with a <span class="redact">redacted section</span> in it.</p>
+
+    <h2>History</h2>
+    <p>Paragraphs without a marking work too.</p>
+
+    <h2>Notes</h2>
+    <ul>
+      <li>List item</li>
+      <li>List item</li>
+    </ul>
+  </main>
+
+  <script src="../assets/pages.js"></script>
+  <script src="../assets/wiki.js"></script>
+</body>
+</html>

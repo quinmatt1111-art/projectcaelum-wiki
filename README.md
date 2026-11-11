@@ -1,28 +1,41 @@
-# Project Caelum Wiki
+# Project Caelum Wiki — AEROCOM Records Archive
 
-The offline wiki for **Project Caelum**, a combat space simulator set in an alternate timeline where the space race accelerated.
+The wiki for **Project Caelum**, a combat space simulator set in an alternate timeline where the space race accelerated. It's presented as the internal records system of the **United States Aerospace Command (AEROCOM)**.
 
-## Viewing it
-- **On PC:** open `index.html` in your browser. Everything works offline.
-- **Anywhere:** once GitHub Pages is on, use the Pages link.
+Live: https://quinmatt1111-art.github.io/projectcaelum-wiki/ · Offline: open `index.html` in a browser.
+
+## Eras
+Older records still look like the system they were written on. Each page picks one with `data-era` on its `<body>`:
+
+| `data-era` | Looks like |
+|---|---|
+| `terminal` | 1970s green-screen mainframe |
+| `web90` | 1990s first web server |
+| `portal` | 2000s intranet portal |
+| `modern` | Current system |
+
+## Classification
+Set with `data-class` on `<body>`: `U`, `CUI`, `C`, `S`, `TS` or `SCI`. Banners appear at the top and bottom of the page in the standard colors. For custom banner text, add `data-marking="SECRET//NOFORN"`.
+
+Inside a page:
+- `<p data-pm="S">…</p>` shows a paragraph marking like **(S)**
+- `<span class="redact">…</span>` blacks out text
+- `<div class="notice">…</div>` is a warning box
 
 ## Adding a page
-1. Copy `pages/_template.html` and rename it, e.g. `pages/vostok-fighter.html`.
-2. Fill in the title, category and content.
-3. Add a line for it in `assets/pages.js`:
-   ```js
-   { title: "Vostok Fighter", path: "pages/vostok-fighter.html", category: "Ships", summary: "Short description." },
-   ```
-4. If it's a new category, add the category name to `CATEGORIES` in the same file.
+1. Copy one of the `pages/_template-*.html` files for the era you want and rename it, e.g. `pages/vostok-fighter.html`.
+2. Fill in the title and content, and set `data-era` / `data-class` on `<body>`.
+3. Add a line for it in `assets/pages.js` (same era and class).
+4. For a new category, add it to `CATEGORIES` in the same file.
 
-The sidebar, search, Random page and Main Page lists update automatically.
+The sidebar, search, Random link and the Main Page directory update automatically.
 
-## Folders
+## Files
 | Path | What's there |
 |---|---|
-| `index.html` | Main Page (the hub) |
-| `pages/` | All wiki articles |
-| `assets/style.css` | The theme. Change the colors at the top to restyle everything |
+| `index.html` | Main Page (records directory) |
+| `pages/` | All records |
+| `assets/style.css` | All four era styles |
 | `assets/pages.js` | List of every page |
-| `assets/wiki.js` | Builds the header, sidebar and search |
-| `images/` | Put pictures here |
+| `assets/wiki.js` | Builds banners, headers, menus and search. Agency name and era labels are at the top |
+| `images/` | Pictures |
