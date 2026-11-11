@@ -19,6 +19,8 @@
   /* ---------- Settings you may want to change ---------- */
   const AGENCY = "United States Aerospace Command";
   const AGENCY_SHORT = "AEROCOM";
+  const REPO = "quinmatt1111-art/projectcaelum-wiki"; // used by the Add page button
+  const BRANCH = "main";
 
   const LEVELS = {
     U:   { text: "UNCLASSIFIED",     css: "u",   short: "U" },
@@ -240,7 +242,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
 
   /* Strip shown under the top banner while authorized */
   const authStrip = authorized
-    ? el("div", "auth-strip", `AUTHORIZED SESSION — RESTRICTED RECORDS VISIBLE · <a href="#" data-auth>End session</a>`)
+    ? el("div", "auth-strip", `AUTHORIZED SESSION — RESTRICTED RECORDS VISIBLE · <a href="#" data-addpage>+ Add page</a> · <a href="#" data-auth>End session</a>`)
     : null;
 
   /* Assemble the page */
@@ -319,6 +321,20 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
       } else openAuth();
     })
   );
+
+  /* Add page tool (authorized only) — loaded from assets/addpage.js */
+  if (authorized) {
+    window.WIKI = { root, era, REPO, BRANCH, LEVELS, ERAS, esc, el };
+    const addBtn = document.querySelector("[data-addpage]");
+    addBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (window.openAddPage) return window.openAddPage();
+      const sc = document.createElement("script");
+      sc.src = root + "assets/addpage.js";
+      sc.onload = () => window.openAddPage();
+      document.head.append(sc);
+    });
+  }
 
   const box = document.querySelector(".search");
   const input = box.querySelector("input");

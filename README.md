@@ -46,3 +46,9 @@ The sidebar, search, Random link and the Main Page directory update automaticall
 - Use the **Authorized access** / Staff Login / Sign In / `[A]` / `F12` link (depends on the era) and enter the code from `ACCESS_CODE` in `assets/pages.js` to see everything. It stays unlocked on that device until you end the session.
 - Design notes: copy `pages/_template-note.html`, add it with `category: "Design Notes"` and `hidden: true`.
 - **Not real security**: the repo is public, so hidden files can still be read on GitHub.
+
+## Add page button
+In authorized mode, use **+ Add page** in the yellow strip. Pick a title, category, format (era or design note), classification and whether it's hidden.
+- **With a GitHub token** (saved only in your browser): the page and its `pages.js` entry are created for you. Make a fine-grained token with access to only this repo and **Contents: Read and write**.
+- **Without a token**: GitHub opens with the page filled in, and you paste one line into `pages.js`.
+New pages are built from the `pages/_template-*.html` files, so editing a template changes what new pages start with.
