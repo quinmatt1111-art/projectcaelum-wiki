@@ -110,4 +110,13 @@ const PAGES = [
     era: "terminal",
     updated: "1979-11-02",
   },
+  {
+    title: "Project Mithras",
+    path: "pages/project-mithras.html",
+    category: "General",
+    summary: "Project Mithras",
+    class: "SCI",
+    era: "web90",
+    updated: "1997-03-14",
+  },
 ];
