@@ -55,3 +55,6 @@ New pages are built from the `pages/_template-*.html` files, so editing a templa
 
 ## Terminal command line
 On the 1970s and 1980s terminal pages you can type at the blinking cursor at the bottom (on a computer, just start typing). Commands: a menu number, a record name, `FIND text`, `R` (random), `BACK`, `A` (authorize), `ADD` (new page, authorized only), `CLEAR`, `HELP`.
+
+## Editing a page
+In authorized mode, click **✎ Edit this page** in the yellow strip. It opens that page's file in GitHub's editor; change the text and click **Commit changes**. To change a page's title or summary in menus and search, edit its entry in `assets/pages.js`.

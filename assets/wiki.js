@@ -243,9 +243,12 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
       </div>`;
   }
 
+  /* File behind the current page, for the "Edit this page" link */
+  const editPath = thisPage ? thisPage.path : (root === "" && /(\/|index\.html)$/.test(location.pathname) ? "index.html" : "");
+
   /* Strip shown under the top banner while authorized */
   const authStrip = authorized
-    ? el("div", "auth-strip", `AUTHORIZED SESSION — RESTRICTED RECORDS VISIBLE · <a href="#" data-addpage>+ Add page</a> · <a href="#" data-auth>End session</a>`)
+    ? el("div", "auth-strip", `AUTHORIZED SESSION — RESTRICTED RECORDS VISIBLE · <a href="#" data-addpage>+ Add page</a>${editPath ? ` · <a href="https://github.com/${REPO}/edit/${BRANCH}/${editPath}" target="_blank" rel="noopener">✎ Edit this page</a>` : ""} · <a href="#" data-auth>End session</a>`)
     : null;
 
   /* Assemble the page */
