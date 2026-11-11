@@ -40,3 +40,9 @@ The sidebar, search, Random link and the Main Page directory update automaticall
 | `assets/pages.js` | List of every page |
 | `assets/wiki.js` | Builds banners, headers, menus and search. Agency name and era labels are at the top |
 | `images/` | Pictures |
+
+## Authorized mode (design notes)
+- Add `hidden: true` to a page in `assets/pages.js` and it disappears from menus, search and the directory. Opening it directly shows **Access Denied**.
+- Use the **Authorized access** / Staff Login / Sign In / `[A]` / `F12` link (depends on the era) and enter the code from `ACCESS_CODE` in `assets/pages.js` to see everything. It stays unlocked on that device until you end the session.
+- Design notes: copy `pages/_template-note.html`, add it with `category: "Design Notes"` and `hidden: true`.
+- **Not real security**: the repo is public, so hidden files can still be read on GitHub.

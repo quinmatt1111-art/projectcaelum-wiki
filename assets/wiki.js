@@ -58,13 +58,32 @@
   const bannerTop = el("div", `cls-banner cls-${L.css}`, esc(marking));
   const bannerBottom = el("div", `cls-banner cls-${L.css} cls-bottom`, esc(marking));
 
+  /* ---------- Authorized mode ----------
+     Pages with  hidden: true  in pages.js only appear after entering
+     ACCESS_CODE (set in pages.js). This hides pages from casual visitors;
+     it is NOT real security — the files are still public on GitHub. */
+  const AUTH_KEY = "aerocom-authorized";
+  const CODE = typeof ACCESS_CODE === "string" ? ACCESS_CODE : "";
+  let authorized = false;
+  try { authorized = !!CODE && localStorage.getItem(AUTH_KEY) === CODE; } catch (e) {}
+  if (authorized) body.classList.add("authorized");
+
+  const VISIBLE = PAGES.filter((p) => authorized || !p.hidden);
+  const thisPage = PAGES.find((p) => isCurrent(p.path));
+  const denied = !!(thisPage && thisPage.hidden && !authorized);
+
+  const authLink = (inLabel, outLabel) =>
+    `<a href="#" data-auth>${authorized ? outLabel : inLabel}</a>`;
+
   /* ---------- Navigation data ---------- */
   const groups = CATEGORIES
-    .map((cat) => ({ cat, pages: PAGES.filter((p) => p.category === cat) }))
+    .map((cat) => ({ cat, pages: VISIBLE.filter((p) => p.category === cat) }))
     .filter((g) => g.pages.length);
 
-  const link = (p, label) =>
-    `<a href="${root}${p.path}"${isCurrent(p.path) ? ' class="current"' : ""}>${esc(label ?? p.title)}</a>`;
+  const link = (p, label) => {
+    const cls = [isCurrent(p.path) && "current", p.hidden && "restricted"].filter(Boolean).join(" ");
+    return `<a href="${root}${p.path}"${cls ? ` class="${cls}"` : ""}>${esc(label ?? p.title)}</a>`;
+  };
   const homeLink = (label) =>
     `<a href="${root}index.html"${isCurrent("index.html") ? ' class="current"' : ""}>${label}</a>`;
   const randomLink = (label) => `<a href="#" data-random>${label}</a>`;
@@ -99,7 +118,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
       menu += `<div class="term-group">-- ${esc(g.cat.toUpperCase())} --</div>`;
       for (const p of g.pages) menu += link(p, `[${n++}] ${p.title.toUpperCase()}`);
     }
-    menu += `${randomLink("[R] RANDOM RECORD")}</div>`;
+    menu += `${randomLink("[R] RANDOM RECORD")}${authLink("[A] AUTHORIZE", "[A] END AUTHORIZED SESSION")}</div>`;
     nav.innerHTML = menu + searchBox("ENTER RECORD NAME");
     footer.innerHTML = `<pre>END OF RECORD. PRESS [0] TO RETURN TO DIRECTORY.<span class="cursor">█</span></pre>`;
   }
@@ -112,7 +131,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
         <span>RECORDS INFORMATION SYSTEM</span>
         <span>TERM T0412</span>
       </div>
-      <div class="t80-title">USER: GUEST &nbsp; ACCESS LEVEL: STANDARD &nbsp; DATE: 1987-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}</div>`;
+      <div class="t80-title">USER: ${authorized ? "AUTHORIZED" : "GUEST"} &nbsp; ACCESS LEVEL: ${authorized ? "TOP CLEARANCE" : "STANDARD"} &nbsp; DATE: 1987-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}</div>`;
     let menu = `<div class="t80-box" data-title="MAIN MENU"><div class="t80-opt">${homeLink("<b>0</b> RECORDS DIRECTORY")}</div>`;
     let n = 1;
     for (const g of groups) {
@@ -129,6 +148,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
         <a href="#" data-random>F5=RANDOM</a>
         <a href="#" data-back>F7=BACK</a>
         <a href="#q">F9=QUERY</a>
+        ${authLink("F12=AUTHORIZE", "F12=END SESSION")}
       </div>`;
     footer.querySelector("[data-back]").addEventListener("click", (e) => { e.preventDefault(); history.back(); });
     footer.querySelector("[data-help]").addEventListener("click", (e) => {
@@ -145,7 +165,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
         <div class="w90-sub">Records Archive Home Page</div>
       </div>
       <hr>
-      <div class="w90-links">[ ${homeLink("Home")} | ${randomLink("Random Page")} | <a href="#q">Search</a> ]</div>
+      <div class="w90-links">[ ${homeLink("Home")} | ${randomLink("Random Page")} | <a href="#q">Search</a> | ${authLink("Staff Login", "Log Out")} ]</div>
       <hr>`;
     let html = `<b>Directory</b><ul>`;
     for (const g of groups) {
@@ -164,7 +184,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     header.innerHTML = `
       <div class="pt-topbar">
         <span>${esc(AGENCY_SHORT)} Intranet</span>
-        <span class="pt-user">Welcome, Guest User ▾</span>
+        <span class="pt-user">Welcome, ${authorized ? "Authorized User" : "Guest User"} | ${authLink("Sign In", "Sign Out")}</span>
       </div>
       <div class="pt-masthead">
         <button class="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
@@ -198,13 +218,30 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
         </a>
         ${searchBox("Search records")}
       </div>`;
-    let html = `<div class="nav-group"><h4>Archive</h4><ul><li>${homeLink("Directory")}</li><li>${randomLink("Random record")}</li></ul></div>`;
+    let html = `<div class="nav-group"><h4>Archive</h4><ul><li>${homeLink("Directory")}</li><li>${randomLink("Random record")}</li><li>${authLink("Authorized access", "End authorized session")}</li></ul></div>`;
     for (const g of groups) {
       html += `<div class="nav-group"><h4>${esc(g.cat)}</h4><ul>${g.pages.map((p) => `<li>${link(p)}</li>`).join("")}</ul></div>`;
     }
     nav.innerHTML = html;
     footer.innerHTML = `${esc(AGENCY)} · Records Archive · Project Caelum`;
   }
+
+  /* Access denied: replace the content of a hidden page */
+  if (denied && main) {
+    document.title = "ACCESS DENIED";
+    main.innerHTML = `
+      <div class="denied">
+        <div class="denied-title">ACCESS DENIED</div>
+        <p>This record is restricted. Your current access level does not permit viewing it.</p>
+        <p>All access attempts are logged.</p>
+        <p><a href="#" data-auth>Enter access code</a> &nbsp;·&nbsp; <a href="${root}index.html">Return to directory</a></p>
+      </div>`;
+  }
+
+  /* Strip shown under the top banner while authorized */
+  const authStrip = authorized
+    ? el("div", "auth-strip", `AUTHORIZED SESSION — RESTRICTED RECORDS VISIBLE · <a href="#" data-auth>End session</a>`)
+    : null;
 
   /* Assemble the page */
   if (main) {
@@ -214,7 +251,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     body.append(layout);
     layout.append(nav);
   }
-  body.prepend(bannerTop, header);
+  body.prepend(bannerTop, ...(authStrip ? [authStrip] : []), header);
   body.append(footer, bannerBottom);
 
   /* ---------- Behaviour ---------- */
@@ -229,9 +266,57 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
   document.querySelectorAll("[data-random]").forEach((a) =>
     a.addEventListener("click", (e) => {
       e.preventDefault();
-      const pool = PAGES.filter((p) => p.category !== "Templates");
-      const list = pool.length ? pool : PAGES;
+      const pool = VISIBLE.filter((p) => p.category !== "Templates" && !isCurrent(p.path));
+      const list = pool.length ? pool : VISIBLE;
       location.href = root + list[Math.floor(Math.random() * list.length)].path;
+    })
+  );
+
+  /* Authorize / end session */
+  function openAuth() {
+    if (!CODE) { alertBox("No access code is set. Add ACCESS_CODE to assets/pages.js."); return; }
+    const overlay = el("div", "auth-overlay", `
+      <form class="auth-box">
+        <div class="auth-title">AUTHORIZATION REQUIRED</div>
+        <label for="auth-code">Enter access code</label>
+        <input id="auth-code" type="password" autocomplete="current-password">
+        <p class="auth-error" hidden>ACCESS CODE REJECTED. ATTEMPT LOGGED.</p>
+        <div class="auth-actions">
+          <button type="submit">Authorize</button>
+          <button type="button" data-cancel>Cancel</button>
+        </div>
+      </form>`);
+    body.append(overlay);
+    const form = overlay.querySelector("form");
+    const field = overlay.querySelector("input");
+    field.focus();
+    const close = () => overlay.remove();
+    overlay.querySelector("[data-cancel]").addEventListener("click", close);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (field.value.trim() === CODE) {
+        try { localStorage.setItem(AUTH_KEY, CODE); } catch (err) {}
+        location.reload();
+      } else {
+        overlay.querySelector(".auth-error").hidden = false;
+        field.select();
+      }
+    });
+  }
+  function alertBox(msg) {
+    const overlay = el("div", "auth-overlay", `<div class="auth-box"><p>${esc(msg)}</p>
+      <div class="auth-actions"><button type="button">OK</button></div></div>`);
+    body.append(overlay);
+    overlay.querySelector("button").addEventListener("click", () => overlay.remove());
+  }
+  document.querySelectorAll("[data-auth]").forEach((a) =>
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (authorized) {
+        try { localStorage.removeItem(AUTH_KEY); } catch (err) {}
+        location.reload();
+      } else openAuth();
     })
   );
 
@@ -242,7 +327,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
   function runSearch() {
     const q = input.value.trim().toLowerCase();
     if (!q) { results.hidden = true; results.innerHTML = ""; return; }
-    const hits = PAGES.map((p) => {
+    const hits = VISIBLE.map((p) => {
       const t = p.title.toLowerCase();
       let score = t.startsWith(q) ? 3 : t.includes(q) ? 2 :
         `${p.summary} ${p.category}`.toLowerCase().includes(q) ? 1 : 0;
@@ -250,7 +335,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     }).filter((h) => h.score).sort((a, b) => b.score - a.score).slice(0, 8);
 
     results.innerHTML = hits.length
-      ? hits.map(({ p }) => `<li><a href="${root}${p.path}"><strong>${esc(p.title)}</strong>
+      ? hits.map(({ p }) => `<li><a href="${root}${p.path}"${p.hidden ? ' class="restricted"' : ""}><strong>${esc(p.title)}</strong>
           <span><em class="tag tag-${lv(p.class).css}">${lv(p.class).short}</em> ${esc(p.summary)}</span></a></li>`).join("")
       : `<li class="no-results">${era.startsWith("terminal") ? "NO MATCHING RECORDS." : `No records match “${esc(input.value)}”`}</li>`;
     results.hidden = false;
@@ -276,7 +361,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
           <thead><tr><th>Record</th><th>Class.</th><th>System</th><th>Updated</th></tr></thead>
           <tbody>${g.pages.map((p) => `
             <tr>
-              <td><a href="${root}${p.path}">${esc(p.title)}</a><span>${esc(p.summary)}</span></td>
+              <td><a href="${root}${p.path}"${p.hidden ? ' class="restricted"' : ""}>${esc(p.title)}</a><span>${esc(p.summary)}</span></td>
               <td><em class="tag tag-${lv(p.class).css}">${lv(p.class).short}</em></td>
               <td class="dir-era">${esc(ERAS[p.era] || "")}</td>
               <td class="dir-date">${esc(p.updated || "")}</td>
@@ -286,5 +371,5 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
       </section>`).join("");
   }
   const count = document.getElementById("page-count");
-  if (count) count.textContent = PAGES.filter((p) => p.category !== "Templates").length;
+  if (count) count.textContent = VISIBLE.filter((p) => p.category !== "Templates").length;
 })();
