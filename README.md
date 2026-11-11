@@ -57,4 +57,7 @@ New pages are built from the `pages/_template-*.html` files, so editing a templa
 On the 1970s and 1980s terminal pages you can type at the blinking cursor at the bottom (on a computer, just start typing). Commands: a menu number, a record name, `FIND text`, `R` (random), `BACK`, `A` (authorize), `ADD` (new page, authorized only), `CLEAR`, `HELP`.
 
 ## Editing a page
-In authorized mode, click **✎ Edit this page** in the yellow strip. It opens that page's file in GitHub's editor; change the text and click **Commit changes**. To change a page's title or summary in menus and search, edit its entry in `assets/pages.js`.
+In authorized mode, click **✎ Edit this page** in the yellow strip. The page becomes editable right where it is:
+- Type directly on the page. The toolbar at the bottom has text styles, bold/italic, lists, links to other pages, **Redact**, paragraph **Marking**, **Notice** boxes, **Image** upload and **+ Info row**.
+- **Page settings** changes the title, summary, category, system (era), classification, banner text, last-updated date and hidden status.
+- **Save** writes the page (and `pages.js` if settings changed) to GitHub using your token. Live in a minute or two.

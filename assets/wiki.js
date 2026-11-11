@@ -248,7 +248,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
 
   /* Strip shown under the top banner while authorized */
   const authStrip = authorized
-    ? el("div", "auth-strip", `AUTHORIZED SESSION — RESTRICTED RECORDS VISIBLE · <a href="#" data-addpage>+ Add page</a>${editPath ? ` · <a href="https://github.com/${REPO}/edit/${BRANCH}/${editPath}" target="_blank" rel="noopener">✎ Edit this page</a>` : ""} · <a href="#" data-auth>End session</a>`)
+    ? el("div", "auth-strip", `AUTHORIZED SESSION — RESTRICTED RECORDS VISIBLE · <a href="#" data-addpage>+ Add page</a>${editPath ? ` · <a href="#" data-editpage>✎ Edit this page</a>` : ""} · <a href="#" data-auth>End session</a>`)
     : null;
 
   /* Assemble the page */
@@ -339,18 +339,20 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     })
   );
 
-  /* Add page tool (authorized only) — loaded from assets/addpage.js */
+  /* Add page + page editor (authorized only) — loaded on demand from assets/admin.js */
   if (authorized) {
-    window.WIKI = { root, era, REPO, BRANCH, LEVELS, ERAS, esc, el };
-    const addBtn = document.querySelector("[data-addpage]");
-    addBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (window.openAddPage) return window.openAddPage();
+    window.WIKI = { root, era, REPO, BRANCH, LEVELS, ERAS, esc, el, thisPage, editPath };
+    const loadAdmin = (fn) => {
+      if (window.WIKI_ADMIN) return window.WIKI_ADMIN[fn]();
       const sc = document.createElement("script");
-      sc.src = root + "assets/addpage.js";
-      sc.onload = () => window.openAddPage();
+      sc.src = root + "assets/admin.js";
+      sc.onload = () => window.WIKI_ADMIN[fn]();
       document.head.append(sc);
-    });
+    };
+    document.querySelectorAll("[data-addpage]").forEach((a) =>
+      a.addEventListener("click", (e) => { e.preventDefault(); loadAdmin("openAddPage"); }));
+    document.querySelectorAll("[data-editpage]").forEach((a) =>
+      a.addEventListener("click", (e) => { e.preventDefault(); loadAdmin("openEditor"); }));
   }
 
   const box = document.querySelector(".search");
@@ -471,7 +473,8 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     document.addEventListener("keydown", (e) => {
       const t = document.activeElement;
       if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
-      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+      if (body.classList.contains("editing")) return;
       tpInput.focus({ preventScroll: true });
     });
     // On computers, start with the prompt ready
