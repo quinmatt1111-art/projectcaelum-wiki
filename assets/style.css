@@ -574,3 +574,21 @@ ul.checklist li.done { opacity: 0.65; text-decoration: line-through; }
 .era-terminal .add-status, .era-terminal80 .add-status { background: transparent; border-color: currentColor; }
 .era-terminal .add-status a, .era-terminal80 .add-status a { color: inherit !important; }
 .add-box [hidden], .auth-box [hidden] { display: none !important; }
+
+/* ==========================================================
+   TERMINAL COMMAND LINE (70s and 80s)
+   ========================================================== */
+.term-prompt { position: relative; cursor: text; word-break: break-all; scroll-margin-bottom: 60px; }
+.tp-label, .tp-text { white-space: pre-wrap; }
+.tp-input {
+  position: absolute; inset: 0; width: 100%; opacity: 0;
+  font-size: 16px; /* stops phones zooming in */ border: none; background: transparent; color: transparent;
+}
+.term-log a { text-decoration: underline; }
+.term-log .term-line { white-space: pre-wrap; }
+.term-prompt .cursor { display: inline-block; }
+.era-terminal .site-footer .term-line, .era-terminal .term-prompt { padding: 0 0; }
+.era-terminal .term-log { margin: 4px 0; color: var(--green); }
+.era-terminal80 .t80-msg .term-log { margin: 4px 0; }
+.era-terminal80 .term-log .term-line:first-child { margin-top: 4px; }
+.era-terminal80 .tp-text { color: var(--amber-bright); }

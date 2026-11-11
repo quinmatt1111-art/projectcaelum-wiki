@@ -52,3 +52,6 @@ In authorized mode, use **+ Add page** in the yellow strip. Pick a title, catego
 - **With a GitHub token** (saved only in your browser): the page and its `pages.js` entry are created for you. Make a fine-grained token with access to only this repo and **Contents: Read and write**.
 - **Without a token**: GitHub opens with the page filled in, and you paste one line into `pages.js`.
 New pages are built from the `pages/_template-*.html` files, so editing a template changes what new pages start with.
+
+## Terminal command line
+On the 1970s and 1980s terminal pages you can type at the blinking cursor at the bottom (on a computer, just start typing). Commands: a menu number, a record name, `FIND text`, `R` (random), `BACK`, `A` (authorize), `ADD` (new page, authorized only), `CLEAR`, `HELP`.

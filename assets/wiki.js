@@ -90,12 +90,20 @@
     `<a href="${root}index.html"${isCurrent("index.html") ? ' class="current"' : ""}>${label}</a>`;
   const randomLink = (label) => `<a href="#" data-random>${label}</a>`;
 
+  /* Pages in menu order; terminal menus number them 1, 2, 3… */
+  const numbered = groups.flatMap((g) => g.pages);
+
+  /* Terminal command line (70s and 80s): typed commands at the bottom */
+  const prompt = (label, cursor) => `
+      <div class="term-log" aria-live="polite"></div>
+      <div class="term-prompt"><span class="tp-label">${label}</span><span class="tp-text"></span><span class="cursor">${cursor}</span><input class="tp-input" aria-label="Command" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>`;
+
   /* ---------- Search box (shared logic, era-specific look) ---------- */
   function searchBox(placeholder, button) {
     return `
       <div class="search">
         ${era === "terminal" ? '<label for="q">QUERY&gt;</label>' : ""}
-        ${era === "terminal80" ? '<label for="q">COMMAND ===&gt;</label>' : ""}
+        ${era === "terminal80" ? '<label for="q">FIND ===&gt;</label>' : ""}
         <input id="q" type="search" placeholder="${placeholder}" aria-label="Search the archive" autocomplete="off">
         ${button ? `<button type="button" class="search-go">${button}</button>` : ""}
         <ul class="search-results" hidden></ul>
@@ -122,7 +130,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     }
     menu += `${randomLink("[R] RANDOM RECORD")}${authLink("[A] AUTHORIZE", "[A] END AUTHORIZED SESSION")}</div>`;
     nav.innerHTML = menu + searchBox("ENTER RECORD NAME");
-    footer.innerHTML = `<pre>END OF RECORD. PRESS [0] TO RETURN TO DIRECTORY.<span class="cursor">█</span></pre>`;
+    footer.innerHTML = `<div class="term-line">END OF RECORD. TYPE A NUMBER, A RECORD NAME, OR HELP.</div>${prompt("&gt; ", "█")}`;
   }
 
   else if (era === "terminal80") {
@@ -143,20 +151,15 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     menu += `</div>`;
     nav.innerHTML = menu + searchBox("");
     footer.innerHTML = `
-      <div class="t80-msg">READY.<span class="cursor">_</span></div>
+      <div class="t80-msg">${prompt("COMMAND ===&gt; ", "_")}</div>
       <div class="t80-fkeys">
-        <a href="#" data-help>F1=HELP</a>
+        <a href="#" data-cmd="HELP">F1=HELP</a>
         <a href="${root}index.html">F3=EXIT</a>
         <a href="#" data-random>F5=RANDOM</a>
-        <a href="#" data-back>F7=BACK</a>
+        <a href="#" data-cmd="BACK">F7=BACK</a>
         <a href="#q">F9=QUERY</a>
         ${authLink("F12=AUTHORIZE", "F12=END SESSION")}
       </div>`;
-    footer.querySelector("[data-back]").addEventListener("click", (e) => { e.preventDefault(); history.back(); });
-    footer.querySelector("[data-help]").addEventListener("click", (e) => {
-      e.preventDefault();
-      footer.querySelector(".t80-msg").innerHTML = 'SELECT A NUMBERED OPTION OR ENTER A RECORD NAME AT COMMAND ===&gt;<span class="cursor">_</span>';
-    });
   }
 
   else if (era === "web90") {
@@ -274,6 +277,17 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     })
   );
 
+  /* Search scoring shared by the search box and the terminal prompt */
+  function findPages(q) {
+    q = q.toLowerCase();
+    return VISIBLE.map((p) => {
+      const t = p.title.toLowerCase();
+      const score = t === q ? 4 : t.startsWith(q) ? 3 : t.includes(q) ? 2 :
+        `${p.summary} ${p.category}`.toLowerCase().includes(q) ? 1 : 0;
+      return { p, score };
+    }).filter((h) => h.score).sort((a, b) => b.score - a.score);
+  }
+
   /* Authorize / end session */
   function openAuth() {
     if (!CODE) { alertBox("No access code is set. Add ACCESS_CODE to assets/pages.js."); return; }
@@ -343,12 +357,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
   function runSearch() {
     const q = input.value.trim().toLowerCase();
     if (!q) { results.hidden = true; results.innerHTML = ""; return; }
-    const hits = VISIBLE.map((p) => {
-      const t = p.title.toLowerCase();
-      let score = t.startsWith(q) ? 3 : t.includes(q) ? 2 :
-        `${p.summary} ${p.category}`.toLowerCase().includes(q) ? 1 : 0;
-      return { p, score };
-    }).filter((h) => h.score).sort((a, b) => b.score - a.score).slice(0, 8);
+    const hits = findPages(q).slice(0, 8);
 
     results.innerHTML = hits.length
       ? hits.map(({ p }) => `<li><a href="${root}${p.path}"${p.hidden ? ' class="restricted"' : ""}><strong>${esc(p.title)}</strong>
@@ -366,6 +375,105 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
   const goBtn = box.querySelector(".search-go");
   if (goBtn) goBtn.addEventListener("click", () => { runSearch(); go(); });
   document.addEventListener("click", (e) => { if (!box.contains(e.target)) results.hidden = true; });
+
+  /* ---------- Terminal command line ---------- */
+  const tp = document.querySelector(".term-prompt");
+  if (tp) {
+    const tpInput = tp.querySelector(".tp-input");
+    const tpText = tp.querySelector(".tp-text");
+    const log = document.querySelector(".term-log");
+    const up = (s) => (era === "terminal" ? String(s).toUpperCase() : String(s));
+
+    const print = (...lines) => {
+      for (const line of lines) {
+        const d = el("div", "term-line");
+        d.innerHTML = line;
+        log.append(d);
+      }
+      while (log.children.length > 40) log.firstChild.remove();
+      reveal();
+    };
+    const reveal = () => tp.scrollIntoView({ block: "nearest" });
+    const go = (path) => { location.href = root + path; };
+    const click = (sel) => { const a = document.querySelector(sel); if (a) a.click(); return !!a; };
+
+    const HELP = [
+      "AVAILABLE COMMANDS:",
+      "  0 / DIR ........ RETURN TO DIRECTORY",
+      `  ${numbered.length > 1 ? "1-" + numbered.length : "1  "} ........... OPEN NUMBERED RECORD`,
+      "  NAME ........... OPEN OR FIND A RECORD BY NAME",
+      "  FIND text ...... SEARCH RECORDS",
+      "  R / RANDOM ..... RANDOM RECORD",
+      "  BACK ........... PREVIOUS SCREEN",
+      `  A / AUTH ....... ${authorized ? "END AUTHORIZED SESSION" : "ENTER ACCESS CODE"}`,
+      ...(authorized ? ["  ADD ............ CREATE A NEW RECORD"] : []),
+      "  CLEAR .......... CLEAR SCREEN",
+    ];
+
+    function listHits(hits) {
+      print(`${hits.length} MATCHING RECORDS:`, ...hits.slice(0, 6).map(({ p }) => {
+        const i = numbered.indexOf(p);
+        return `  <a href="${root}${p.path}">${i >= 0 ? `[${i + 1}] ` : ""}${esc(up(p.title))}</a>`;
+      }));
+    }
+
+    function run(raw) {
+      const cmd = raw.trim();
+      if (!cmd) return;
+      print(`&gt; ${esc(up(cmd))}`);
+      const [word, ...rest] = cmd.split(/\s+/);
+      const W = word.toUpperCase();
+      const arg = rest.join(" ");
+
+      if (/^\d+$/.test(cmd)) {
+        const n = parseInt(cmd, 10);
+        if (n === 0) return go("index.html");
+        if (numbered[n - 1]) return go(numbered[n - 1].path);
+        return print(`INVALID SELECTION: ${n}`);
+      }
+      switch (W) {
+        case "HELP": case "?": case "F1": return print(...HELP);
+        case "DIR": case "MENU": case "EXIT": case "HOME": case "F3": return go("index.html");
+        case "R": case "RANDOM": case "F5": return click("[data-random]");
+        case "BACK": case "B": case "F7": print("RETURNING TO PREVIOUS SCREEN..."); return history.back();
+        case "A": case "AUTH": case "AUTHORIZE": case "LOGIN": case "LOGOUT": case "F12": return click("[data-auth]");
+        case "ADD": case "NEW":
+          return authorized ? click("[data-addpage]") : print("ACCESS DENIED. AUTHORIZATION REQUIRED.");
+        case "CLEAR": case "CLS": log.innerHTML = ""; return;
+        case "F9": return document.getElementById("q").focus();
+        case "FIND": case "SEARCH": case "QUERY": {
+          if (!arg) return print("USAGE: FIND text");
+          const hits = findPages(arg);
+          return hits.length ? listHits(hits) : print("NO MATCHING RECORDS.");
+        }
+      }
+      // anything else: treat as a record name
+      const hits = findPages(cmd);
+      if (hits.length && (hits[0].score === 4 || hits.length === 1)) return go(hits[0].p.path);
+      if (hits.length) return listHits(hits);
+      print(`UNKNOWN COMMAND OR RECORD: ${esc(up(cmd))}`, "TYPE HELP FOR A LIST OF COMMANDS.");
+    }
+
+    if (era === "terminal80") print("READY.");
+    const sync = () => { tpText.textContent = up(tpInput.value); reveal(); };
+    tpInput.addEventListener("input", sync);
+    tpInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); const v = tpInput.value; tpInput.value = ""; sync(); run(v); }
+    });
+    tp.addEventListener("click", () => tpInput.focus());
+    document.querySelectorAll("[data-cmd]").forEach((a) =>
+      a.addEventListener("click", (e) => { e.preventDefault(); run(a.dataset.cmd); }));
+
+    // Typing anywhere on the page goes to the prompt
+    document.addEventListener("keydown", (e) => {
+      const t = document.activeElement;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
+      tpInput.focus({ preventScroll: true });
+    });
+    // On computers, start with the prompt ready
+    if (window.matchMedia("(pointer: fine)").matches) tpInput.focus({ preventScroll: true });
+  }
 
   /* ---------- Main Page directory ---------- */
   const dir = document.getElementById("directory");
