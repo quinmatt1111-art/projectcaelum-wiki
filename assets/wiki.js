@@ -31,6 +31,7 @@
 
   const ERAS = {
     terminal: "ADN Mainframe (1970s)",
+    terminal80: "ADN-2 System (1980s)",
     web90:    "AEROCOM Web (1990s)",
     portal:   "AEROCOM Portal (2000s)",
     modern:   "Current System",
@@ -73,6 +74,7 @@
     return `
       <div class="search">
         ${era === "terminal" ? '<label for="q">QUERY&gt;</label>' : ""}
+        ${era === "terminal80" ? '<label for="q">COMMAND ===&gt;</label>' : ""}
         <input id="q" type="search" placeholder="${placeholder}" aria-label="Search the archive" autocomplete="off">
         ${button ? `<button type="button" class="search-go">${button}</button>` : ""}
         <ul class="search-results" hidden></ul>
@@ -100,6 +102,39 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     menu += `${randomLink("[R] RANDOM RECORD")}</div>`;
     nav.innerHTML = menu + searchBox("ENTER RECORD NAME");
     footer.innerHTML = `<pre>END OF RECORD. PRESS [0] TO RETURN TO DIRECTORY.<span class="cursor">█</span></pre>`;
+  }
+
+  else if (era === "terminal80") {
+    const now = new Date();
+    header.innerHTML = `
+      <div class="t80-status">
+        <span>${AGENCY_SHORT} ADN-2</span>
+        <span>RECORDS INFORMATION SYSTEM</span>
+        <span>TERM T0412</span>
+      </div>
+      <div class="t80-title">USER: GUEST &nbsp; ACCESS LEVEL: STANDARD &nbsp; DATE: 1987-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}</div>`;
+    let menu = `<div class="t80-box" data-title="MAIN MENU"><div class="t80-opt">${homeLink("<b>0</b> RECORDS DIRECTORY")}</div>`;
+    let n = 1;
+    for (const g of groups) {
+      menu += `<div class="t80-group">${esc(g.cat.toUpperCase())}</div>`;
+      for (const p of g.pages) menu += `<div class="t80-opt">${link(p, "")}</div>`.replace("></a>", `><b>${n++}</b> ${esc(p.title)}</a>`);
+    }
+    menu += `</div>`;
+    nav.innerHTML = menu + searchBox("");
+    footer.innerHTML = `
+      <div class="t80-msg">READY.<span class="cursor">_</span></div>
+      <div class="t80-fkeys">
+        <a href="#" data-help>F1=HELP</a>
+        <a href="${root}index.html">F3=EXIT</a>
+        <a href="#" data-random>F5=RANDOM</a>
+        <a href="#" data-back>F7=BACK</a>
+        <a href="#q">F9=QUERY</a>
+      </div>`;
+    footer.querySelector("[data-back]").addEventListener("click", (e) => { e.preventDefault(); history.back(); });
+    footer.querySelector("[data-help]").addEventListener("click", (e) => {
+      e.preventDefault();
+      footer.querySelector(".t80-msg").innerHTML = 'SELECT A NUMBERED OPTION OR ENTER A RECORD NAME AT COMMAND ===&gt;<span class="cursor">_</span>';
+    });
   }
 
   else if (era === "web90") {
@@ -217,7 +252,7 @@ SESSION OPEN. ALL ACTIVITY IS MONITORED AND RECORDED.</pre>`;
     results.innerHTML = hits.length
       ? hits.map(({ p }) => `<li><a href="${root}${p.path}"><strong>${esc(p.title)}</strong>
           <span><em class="tag tag-${lv(p.class).css}">${lv(p.class).short}</em> ${esc(p.summary)}</span></a></li>`).join("")
-      : `<li class="no-results">${era === "terminal" ? "NO MATCHING RECORDS." : `No records match “${esc(input.value)}”`}</li>`;
+      : `<li class="no-results">${era.startsWith("terminal") ? "NO MATCHING RECORDS." : `No records match “${esc(input.value)}”`}</li>`;
     results.hidden = false;
   }
   const go = () => { const a = results.querySelector("a"); if (a) location.href = a.getAttribute("href"); };

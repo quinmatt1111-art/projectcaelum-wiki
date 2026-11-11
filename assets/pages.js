@@ -10,7 +10,7 @@
     category  - which directory it belongs to (must be in CATEGORIES)
     summary   - one line, shown in search and the directory
     class     - classification: "U", "CUI", "C", "S", "TS" or "SCI"
-    era       - which system it "lives" on: "terminal", "web90", "portal" or "modern"
+    era       - which system it "lives" on: "terminal", "terminal80", "web90", "portal" or "modern"
     updated   - "last updated" date shown in the directory (any text)
 
   Remember: the page's own <body data-class="…" data-era="…"> should match.
@@ -57,6 +57,15 @@ const PAGES = [
     class: "C",
     era: "web90",
     updated: "1997-03-14",
+  },
+  {
+    title: "Template: 1980s Terminal",
+    path: "pages/_template-terminal80.html",
+    category: "Templates",
+    summary: "Copy this for records on the upgraded 1980s amber-screen system.",
+    class: "TS",
+    era: "terminal80",
+    updated: "1987-06-19",
   },
   {
     title: "Template: 1970s Terminal",

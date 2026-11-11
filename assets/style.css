@@ -8,6 +8,7 @@
    3. Era: 2000s portal
    4. Era: 1990s web
    5. Era: 1970s terminal
+   6. Era: 1980s terminal
    ========================================================== */
 
 /* ---------- 1. SHARED ---------- */
@@ -343,6 +344,95 @@ img { max-width: 100%; }
 @keyframes blink { 50% { opacity: 0; } }
 
 /* ==========================================================
+   6. ERA: 1980s TERMINAL (ADN-2 upgrade, amber screen)
+   ========================================================== */
+.era-terminal80 {
+  --amber: #ffb000; --amber-dim: #a8740a; --amber-bright: #ffd27a;
+  background: #0d0800; color: var(--amber);
+  font: 16px/1.5 "Courier New", Courier, "Lucida Console", monospace;
+  text-shadow: 0 0 5px #ffb00066;
+  padding-bottom: 44px; /* room for the function-key bar */
+}
+.era-terminal80::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60;
+  background: repeating-linear-gradient(transparent 0 2px, #0004 2px 3px);
+}
+.era-terminal80 a { color: var(--amber); text-decoration: none; }
+.era-terminal80 .cls-banner { text-shadow: none; font-family: "Courier New", monospace; }
+
+/* Top status line, reversed like a real screen header */
+.t80-status {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  background: var(--amber); color: #0d0800; text-shadow: none; font-weight: bold;
+  padding: 2px 18px;
+}
+.t80-title { padding: 4px 18px; color: var(--amber-dim); border-bottom: 3px double var(--amber-dim); }
+
+.era-terminal80 .layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; padding: 18px; }
+
+/* Boxed panels with a title cut into the top border */
+.t80-box, .era-terminal80 .infobox, .era-terminal80 .notice {
+  position: relative; border: 3px double var(--amber); padding: 14px 12px 10px;
+}
+.t80-box::before, .era-terminal80 .infobox-title {
+  position: absolute; top: -0.8em; left: 12px; padding: 0 6px;
+  background: #0d0800; font-weight: bold; text-transform: uppercase;
+}
+.t80-box::before { content: attr(data-title); }
+.t80-group { color: var(--amber-dim); margin: 10px 0 2px; text-transform: uppercase; }
+.t80-group::before { content: "── "; }
+.t80-opt a { display: block; padding: 0 4px; }
+.t80-opt b { display: inline-block; width: 2.2em; color: var(--amber-bright); }
+.t80-opt a:hover, .t80-opt a.current { background: var(--amber); color: #0d0800; text-shadow: none; }
+.t80-opt a:hover b, .t80-opt a.current b { color: #0d0800; }
+
+.era-terminal80 .search { margin-top: 16px; display: flex; gap: 8px; align-items: center; }
+.era-terminal80 .search label { white-space: nowrap; }
+.era-terminal80 .search input {
+  flex: 1; min-width: 0; background: transparent; border: none; border-bottom: 1px solid var(--amber);
+  color: var(--amber-bright); font: inherit; text-transform: uppercase; outline: none;
+}
+.era-terminal80 .search-results { background: #0d0800; border: 3px double var(--amber); top: calc(100% + 6px); }
+.era-terminal80 .search-results a:hover { background: var(--amber); color: #0d0800; text-shadow: none; }
+.era-terminal80 .search-results span { color: var(--amber-dim); }
+.era-terminal80 .search-results .tag { text-shadow: none; }
+
+/* Record content: mixed case, with upper-case headings */
+.era-terminal80 main { min-width: 0; }
+.era-terminal80 .breadcrumb { color: var(--amber-dim); text-transform: uppercase; }
+.era-terminal80 h1, .era-terminal80 h2, .era-terminal80 h3 { font: inherit; font-weight: bold; text-transform: uppercase; }
+.era-terminal80 h1 {
+  margin: 4px 0 14px; padding: 2px 8px; display: inline-block;
+  background: var(--amber); color: #0d0800; text-shadow: none;
+}
+.era-terminal80 h2 { margin: 20px 0 6px; border-bottom: 1px dashed var(--amber-dim); }
+.era-terminal80 p { margin: 0 0 12px; max-width: 76ch; }
+.era-terminal80 main p a, .era-terminal80 main li a { text-decoration: underline; color: var(--amber-bright); }
+.era-terminal80 .redact { background: var(--amber); }
+.era-terminal80 .notice { margin: 16px 0; display: flow-root; }
+.era-terminal80 .notice::before { content: "*** NOTICE ***"; display: block; font-weight: bold; }
+
+/* Infobox as a data-entry form: "DESIGNATION ....: XX-00" */
+.era-terminal80 .infobox { margin-top: 10px; padding-top: 16px; width: 340px; }
+.era-terminal80 .infobox-image { display: none; }
+.era-terminal80 .infobox th, .era-terminal80 .infobox td { padding: 1px 0; font-weight: normal; }
+.era-terminal80 .infobox th { color: var(--amber-dim); text-transform: uppercase; white-space: nowrap; width: 1%; padding-right: 6px; }
+.era-terminal80 .infobox th::after { content: " ....:"; }
+.era-terminal80 .infobox td { color: var(--amber-bright); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Message line and function-key bar pinned to the bottom of the screen */
+.era-terminal80 .site-footer { clear: both; }
+.t80-msg { padding: 6px 18px; border-top: 3px double var(--amber-dim); }
+.t80-fkeys {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
+  display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 6px 18px;
+  background: #0d0800; border-top: 1px solid var(--amber-dim);
+}
+.t80-fkeys a { color: var(--amber-bright); }
+.t80-fkeys a:hover { background: var(--amber); color: #0d0800; text-shadow: none; }
+.era-terminal80 .cls-bottom { margin-bottom: 4px; }
+
+/* ==========================================================
    PHONES / SMALL SCREENS
    ========================================================== */
 @media (max-width: 800px) {
@@ -388,4 +478,11 @@ img { max-width: 100%; }
   .era-terminal { font-size: 14px; }
   .era-terminal .sidebar { border-bottom: 1px dashed var(--dim); padding-bottom: 12px; margin-bottom: 14px; }
   .era-terminal .site-header, .era-terminal .layout, .era-terminal .site-footer { padding-left: 12px; padding-right: 12px; }
+
+  .era-terminal80 { font-size: 14px; padding-bottom: 64px; }
+  .era-terminal80 .layout { display: block; padding: 18px 12px; }
+  .era-terminal80 .sidebar { margin-bottom: 22px; }
+  .t80-status, .t80-title, .t80-msg { padding-left: 12px; padding-right: 12px; }
+  .t80-status span:nth-child(2) { display: none; }
+  .t80-fkeys { padding: 6px 12px; gap: 2px 14px; }
 }

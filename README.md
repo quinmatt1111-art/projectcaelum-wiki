@@ -10,6 +10,7 @@ Older records still look like the system they were written on. Each page picks o
 | `data-era` | Looks like |
 |---|---|
 | `terminal` | 1970s green-screen mainframe |
+| `terminal80` | 1980s amber terminal with boxed menus and function keys |
 | `web90` | 1990s first web server |
 | `portal` | 2000s intranet portal |
 | `modern` | Current system |
