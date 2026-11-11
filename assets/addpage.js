@@ -222,7 +222,7 @@
           say("Adding it to pages.js…");
           const reg = await getFile("assets/pages.js");
           await putFile("assets/pages.js", addToRegistry(reg.text, f, registryEntry(f, path)), `Register page: ${f.title}`, reg.sha);
-          say(`<b>Created ${esc(path)}.</b> It'll be live in about a minute.<br>
+          say(`<b>Created ${esc(path)}.</b> It'll be live in a minute or two. If it doesn't show up, press Ctrl+F5 (or pull down to refresh on a phone).<br>
             <a href="https://github.com/${REPO}/edit/${BRANCH}/${path}" target="_blank" rel="noopener">Write the content on GitHub</a>
             · <a href="${root}${path}">Open page</a> (after it goes live)`);
           form.reset(); refreshToken();
